@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"./db"
+
 	"github.com/gorilla/mux"
 )
 
@@ -12,6 +14,7 @@ import (
 // and a private mux.Router instance
 type Server struct {
 	Port   int
+	Db     *db.Db
 	router *mux.Router
 }
 
@@ -19,6 +22,7 @@ type Server struct {
 func NewServer(port int) *Server {
 	return &Server{
 		Port:   port,
+		Db:     db.NewDb(),
 		router: mux.NewRouter(),
 	}
 }

@@ -20,6 +20,8 @@ type CSVEndpoint interface {
 func (s *Server) addRoutes() {
 	s.addJSONRoute("api/v1/status", endpointsv1.GenStatusEndpoint())
 	s.addCSVRoute("api/v1/entries", endpointsv1.GenEntriesEndpoint())
+	s.addJSONRoute("api/v1/treatments", endpointsv1.GenTreatmentsEndpoint())
+	s.addJSONRoute("api/v1/devicestatus", endpointsv1.GenDeviceStatusEndpoint())
 }
 
 // addJSONRoute adds a route which has a default JSON output
