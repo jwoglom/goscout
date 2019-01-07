@@ -8,14 +8,15 @@ import (
 
 // A Treatment is an optional entering of carbs/insulin/glucose
 type Treatment struct {
-	ID        int64     `db:"id, primarykey, autoincrement"`
-	EnteredBy string    `db:"enteredBy"`
-	Carbs     float32   `db:"carbs"`
-	Insulin   float32   `db:"insulin"`
-	Glucose   int       `db:"glucose"`
-	Notes     string    `db:"notes"`
-	EventType string    `db:"eventType"`
-	Time      time.Time `db:"time"`
+	ID          int64     `db:"id, primarykey, autoincrement"`
+	EnteredBy   string    `db:"enteredBy"`
+	Carbs       float32   `db:"carbs"`
+	Insulin     float32   `db:"insulin"`
+	Glucose     int       `db:"glucose"`
+	GlucoseType string    `db:"glucoseType"`
+	Notes       string    `db:"notes"`
+	EventType   string    `db:"eventType"`
+	Time        time.Time `db:"time"`
 }
 
 // EventTypes are the allowed event types

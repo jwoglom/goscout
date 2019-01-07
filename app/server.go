@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"./db"
+	"./endpointsv1"
 
 	"github.com/gorilla/mux"
 )
@@ -16,14 +17,32 @@ type Server struct {
 	Port   int
 	Db     *db.Db
 	router *mux.Router
+
+	Package *Package
+}
+
+// Package provides accessors to different subpackages
+type Package struct {
+	EndpointsV1 *endpointsv1.EndpointsV1
 }
 
 // NewServer creates a Server
 func NewServer(port int) *Server {
-	return &Server{
+	server := &Server{
 		Port:   port,
 		Db:     db.NewDb(),
 		router: mux.NewRouter(),
+	}
+
+	server.genPackage()
+	return server
+}
+
+func (s *Server) genPackage() {
+	s.Package = &Package{
+		EndpointsV1: &endpointsv1.EndpointsV1{
+			Db: s.Db,
+		},
 	}
 }
 

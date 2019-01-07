@@ -22,7 +22,7 @@ type Entry struct {
 }
 
 // GenEntriesEndpoint is a placeholder which returns a fixed entries output
-func GenEntriesEndpoint() Entries {
+func (v1 *EndpointsV1) GenEntriesEndpoint() Entries {
 	return Entries{{
 		DateString: "2019-01-06T19:04:57.985-0500",
 		Date:       1546819497985,

@@ -8,7 +8,7 @@ type Status struct {
 }
 
 // GenStatusEndpoint is a placeholder which returns the fixed status output
-func GenStatusEndpoint() Status {
+func (v1 *EndpointsV1) GenStatusEndpoint() Status {
 	return Status{
 		Status:  "ok",
 		Name:    "Goscout",

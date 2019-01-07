@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"./endpointsv1"
 )
 
 // Endpoint is a placeholder interface for API endpoint structs
@@ -18,10 +16,11 @@ type CSVEndpoint interface {
 }
 
 func (s *Server) addRoutes() {
-	s.addJSONRoute("api/v1/status", endpointsv1.GenStatusEndpoint())
-	s.addCSVRoute("api/v1/entries", endpointsv1.GenEntriesEndpoint())
-	s.addJSONRoute("api/v1/treatments", endpointsv1.GenTreatmentsEndpoint())
-	s.addJSONRoute("api/v1/devicestatus", endpointsv1.GenDeviceStatusEndpoint())
+	v1 := s.Package.EndpointsV1
+	s.addJSONRoute("api/v1/status", v1.GenStatusEndpoint())
+	s.addCSVRoute("api/v1/entries", v1.GenEntriesEndpoint())
+	s.addJSONRoute("api/v1/treatments", v1.GenTreatmentsEndpoint())
+	s.addJSONRoute("api/v1/devicestatus", v1.GenDeviceStatusEndpoint())
 }
 
 // addJSONRoute adds a route which has a default JSON output

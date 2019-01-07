@@ -16,7 +16,7 @@ type DevUploader struct {
 }
 
 // GenDeviceStatusEndpoint is a placeholder which returns a fixed devicestatus output
-func GenDeviceStatusEndpoint() DeviceStatus {
+func (v1 *EndpointsV1) GenDeviceStatusEndpoint() DeviceStatus {
 	return DeviceStatus{{
 		Device: "Google Pixel 2 XL",
 		Uploader: DevUploader{
