@@ -3,56 +3,44 @@ package app
 import (
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-// Endpoint is a placeholder interface for API endpoint structs
-type Endpoint interface{}
+// EndpointFunc refers to a function accepting a http request and returning
+// a struct of data which is rendered via, e.g., json
+type EndpointFunc func(*http.Request) interface{}
 
-// CSVEndpoint is an interface for API endpoint structs which support CSV output
-type CSVEndpoint interface {
-	CSV() [][]string
-}
+// CSVEndpointFunc refers to a function accepting a http request and returning
+// an array of CSV data
+type CSVEndpointFunc func(*http.Request) [][]string
 
 func (s *Server) addRoutes() {
 	v1 := s.Package.EndpointsV1
-	s.addJSONRoute("api/v1/status", v1.GenStatusEndpoint())
-	s.addCSVRoute("api/v1/entries", v1.GenEntriesEndpoint())
-	s.addJSONRoute("api/v1/treatments", v1.GenTreatmentsEndpoint())
-	s.addJSONRoute("api/v1/devicestatus", v1.GenDeviceStatusEndpoint())
+	s.router.HandleFunc("/api/v1/status", jsonWrapper(v1.GenStatusEndpoint))
+	s.router.HandleFunc("/api/v1/status.json", jsonWrapper(v1.GenStatusEndpoint))
+
+	s.router.HandleFunc("/api/v1/entries", csvWrapper(v1.GenEntriesCSVEndpoint))
+	s.router.HandleFunc("/api/v1/entries.csv", csvWrapper(v1.GenEntriesCSVEndpoint))
+	s.router.HandleFunc("/api/v1/entries.json", jsonWrapper(v1.GenStatusEndpoint))
+
+	s.router.HandleFunc("/api/v1/treatments", jsonWrapper(v1.GenTreatmentsEndpoint))
+	s.router.HandleFunc("/api/v1/treatments.json", jsonWrapper(v1.GenTreatmentsEndpoint))
+
+	s.router.HandleFunc("/api/v1/devicestatus", jsonWrapper(v1.GenDeviceStatusEndpoint))
+	s.router.HandleFunc("/api/v1/devicestatus.json", jsonWrapper(v1.GenDeviceStatusEndpoint))
 }
 
-// addJSONRoute adds a route which has a default JSON output
-func (s *Server) addJSONRoute(name string, generator Endpoint) {
-	s.router.HandleFunc(fmt.Sprintf("/%s", name), jsonWrapper(generator))
-	s.router.HandleFunc(fmt.Sprintf("/%s.json", name), jsonWrapper(generator))
-}
-
-// addCSVRoute adds a route which has a default CSV output
-func (s *Server) addCSVRoute(name string, generator CSVEndpoint) {
-	s.router.HandleFunc(fmt.Sprintf("/%s", name), csvWrapper(generator))
-	s.router.HandleFunc(fmt.Sprintf("/%s.csv", name), csvWrapper(generator))
-	s.router.HandleFunc(fmt.Sprintf("/%s.json", name), jsonWrapper(generator))
-}
-
-/*func httpWrapper(e Endpoint) func(w http.ResponseWriter, r *http.Request) {
+func jsonWrapper(endpoint EndpointFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, e.Http())
-	}
-}*/
-
-func jsonWrapper(e Endpoint) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(e)
+		json.NewEncoder(w).Encode(endpoint(r))
 	}
 }
 
-func csvWrapper(e CSVEndpoint) func(w http.ResponseWriter, r *http.Request) {
+func csvWrapper(endpoint CSVEndpointFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cw := csv.NewWriter(w)
 		defer cw.Flush()
-		for _, row := range e.CSV() {
+		for _, row := range endpoint(r) {
 			cw.Write(row)
 		}
 	}

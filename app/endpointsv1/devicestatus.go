@@ -1,5 +1,7 @@
 package endpointsv1
 
+import "net/http"
+
 // DeviceStatus is the devicestatus API struct definition
 type DeviceStatus []DevStatus
 
@@ -16,7 +18,7 @@ type DevUploader struct {
 }
 
 // GenDeviceStatusEndpoint is a placeholder which returns a fixed devicestatus output
-func (v1 *EndpointsV1) GenDeviceStatusEndpoint() DeviceStatus {
+func (v1 *EndpointsV1) GenDeviceStatusEndpoint(r *http.Request) interface{} {
 	return DeviceStatus{{
 		Device: "Google Pixel 2 XL",
 		Uploader: DevUploader{

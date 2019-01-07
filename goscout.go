@@ -20,17 +20,19 @@ func main() {
 	s := app.NewServer(*port)
 
 	if *testadd {
-		glog.Infoln("adding fake treatment")
+		glog.Infoln("adding fake treatments")
+		s.Db.AddFakeTreatment()
+		s.Db.AddFakeTreatment()
 		s.Db.AddFakeTreatment()
 	}
 
 	if *testget {
 		glog.Infoln("getting treatments")
-		glog.Info(s.Db.GetTreatments())
+		glog.Info(s.Db.GetTreatments(3))
 		glog.Infoln("getting treatment #1")
-		glog.Info(s.Db.GetTreatment(1))
+		glog.Info(s.Db.GetTreatmentWithID(1))
 		glog.Infoln("getting treatment #9999")
-		glog.Info(s.Db.GetTreatment(9999))
+		glog.Info(s.Db.GetTreatmentWithID(9999))
 	}
 
 	s.Run()

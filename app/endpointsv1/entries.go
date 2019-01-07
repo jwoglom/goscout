@@ -1,6 +1,9 @@
 package endpointsv1
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 // Entries is the entries API struct definition
 type Entries []Entry
@@ -22,7 +25,7 @@ type Entry struct {
 }
 
 // GenEntriesEndpoint is a placeholder which returns a fixed entries output
-func (v1 *EndpointsV1) GenEntriesEndpoint() Entries {
+func (v1 *EndpointsV1) GenEntriesEndpoint(r *http.Request) interface{} {
 	return Entries{{
 		DateString: "2019-01-06T19:04:57.985-0500",
 		Date:       1546819497985,
@@ -38,10 +41,11 @@ func (v1 *EndpointsV1) GenEntriesEndpoint() Entries {
 	}}
 }
 
-// CSV returns a CSV output of entries
-func (es Entries) CSV() [][]string {
+// GenEntriesCSVEndpoint converts the output of GenEntriesEndpoint to CSV
+func (v1 *EndpointsV1) GenEntriesCSVEndpoint(r *http.Request) [][]string {
+	entries := v1.GenEntriesEndpoint(r).(Entries)
 	var out [][]string
-	for _, e := range es {
+	for _, e := range entries {
 		var row []string
 		row = append(row, e.DateString)
 		row = append(row, fmt.Sprintf("%d", e.Date))

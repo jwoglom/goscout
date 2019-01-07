@@ -2,6 +2,7 @@ package endpointsv1
 
 import (
 	"fmt"
+	"net/http"
 
 	"../db"
 )
@@ -22,29 +23,11 @@ type Treatment struct {
 	CreatedAt   string  `json:"created_at"`
 }
 
-// GenTreatmentsEndpoint is a placeholder which returns a fixed treatments output
-func (v1 *EndpointsV1) GenTreatmentsEndpoint() Treatments {
-	/*
-		dummyData := Treatments{{
-			EventType: "Meal Bolus",
-			Insulin:   6.67,
-			Carbs:     40,
-			EnteredBy: "Diabetes-M (dm2nsc)",
-			Notes:     "wrap (40)",
-			CreatedAt: "2019-01-06 18:05:00-05:00",
-		}, {
-			EventType:   "<none>",
-			EnteredBy:   "xdrip",
-			Notes:       "note",
-			CreatedAt:   "2019-01-03T07:22:10Z",
-			Carbs:       0,
-			Insulin:     0,
-			Glucose:     100,
-			GlucoseType: "finger",
-		}}
-	*/
+// GenTreatmentsEndpoint returns all treatments in the database
+func (v1 *EndpointsV1) GenTreatmentsEndpoint(r *http.Request) interface{} {
 	var out Treatments
-	for _, tr := range v1.Db.GetTreatments() {
+	limit := 10
+	for _, tr := range v1.Db.GetTreatments(limit) {
 		out = append(out, DbTreatmentToTreatment(tr))
 	}
 	return out
