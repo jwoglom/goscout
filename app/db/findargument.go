@@ -14,7 +14,7 @@ type FindArguments []FindArgument
 
 // BuildQueryArgs, given an input query and limit, returns the final
 // SQL query and arguments to pass to dbmap.
-func (fas FindArguments) BuildQueryArgs(inputQuery string, limit int) (string, map[string]interface{}) {
+func (fas FindArguments) BuildQueryArgs(inputQuery string, limit int, allowedCols map[string]interface{}) (string, map[string]interface{}) {
 	var query strings.Builder
 	query.WriteString(inputQuery)
 
@@ -28,7 +28,7 @@ func (fas FindArguments) BuildQueryArgs(inputQuery string, limit int) (string, m
 		} else {
 			query.WriteString(` AND `)
 		}
-		query.WriteString(f.SQL())
+		query.WriteString(f.SQL(allowedCols))
 		for k, v := range f.Args() {
 			args[k] = v
 		}
@@ -94,21 +94,29 @@ func randomString(len int) string {
 	return string(bytes)
 }
 
-// SQL returns the SQL form string `:key (oper) :value`
-func (f FindArgument) SQL() string {
-	if f.Operation == "$gte" {
-		return `:` + f.prefix + `FieldName >= :` + f.prefix + `Value`
-	} else if f.Operation == "$lte" {
-		return `:` + f.prefix + `FieldName <= :` + f.prefix + `Value`
+// SQL returns the SQL form string `:key (oper) :value`, and replaces the
+// field name with an alias in allowedCols if one exists
+func (f FindArgument) SQL(allowedCols map[string]interface{}) string {
+	name := f.FieldName
+	if alias, ok := allowedCols[f.FieldName]; !ok {
+		glog.Fatalf("Field name %s is not in allowedCols: %s", f.FieldName, allowedCols)
+		return ""
+	} else if alias != nil {
+		name = alias.(string)
 	}
-	return `:` + f.prefix + `FieldName == :` + f.prefix + `Value`
+
+	if f.Operation == "$gte" {
+		return name + ` >= :` + f.prefix + `Value`
+	} else if f.Operation == "$lte" {
+		return name + ` <= :` + f.prefix + `Value`
+	}
+	return name + ` == :` + f.prefix + `Value`
 }
 
 // Args returns the map for the arguments used as parameters for SQL
 func (f FindArgument) Args() map[string]interface{} {
 	return map[string]interface{}{
-		f.prefix + "FieldName": f.FieldName,
-		f.prefix + "Value":     tryInt(f.Value),
+		f.prefix + "Value": tryInt(f.Value),
 	}
 }
 

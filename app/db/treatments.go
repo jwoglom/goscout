@@ -1,16 +1,28 @@
 package db
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/ttacon/glog"
 )
 
-// Fields is the db columns used for treatments
+// treatmentFields are the db columns used for treatments
 const treatmentFields = `id, enteredBy, carbs, insulin, glucose, notes, eventType, time`
 
-// GetAll returns all treatments
+// treatmentFieldMap contains a mapping representing aliased fields, and its
+// keys represent the only allowed filters
+var treatmentFieldMap = map[string]interface{}{
+	"id":         nil,
+	"enteredBy":  nil,
+	"carbs":      nil,
+	"insulin":    nil,
+	"glucose":    nil,
+	"notes":      nil,
+	"eventType":  nil,
+	"time":       nil,
+	"_id":        "id",
+	"created_at": "time",
+}
+
+// GetAllTreatments returns all treatments in the database
 func (db *Db) GetAllTreatments() []Treatment {
 	var out []Treatment
 	db.dbMap.Select(&out, `SELECT `+treatmentFields+` FROM treatments`)
@@ -18,7 +30,7 @@ func (db *Db) GetAllTreatments() []Treatment {
 	return out
 }
 
-// GetTreatments returns limit treatments
+// GetTreatments returns the limit most recent treatments
 func (db *Db) GetTreatments(limit int) []Treatment {
 	var out []Treatment
 	_, err := db.dbMap.Select(&out, `SELECT `+treatmentFields+` FROM treatments ORDER BY time DESC LIMIT :limit`,
@@ -32,19 +44,9 @@ func (db *Db) GetTreatments(limit int) []Treatment {
 // GetTreatmentsWithFind returns limit treatments with the given treatment find operators
 func (db *Db) GetTreatmentsWithFind(finds FindArguments, limit int) []Treatment {
 	var out []Treatment
-	query, args := finds.BuildQueryArgs(`SELECT `+treatmentFields+` FROM treatments`, limit)
+	query, args := finds.BuildQueryArgs(`SELECT `+treatmentFields+` FROM treatments`, limit, treatmentFieldMap)
 	glog.Infoln("getTreatmentsWithFind: ", query, args)
-	// FIXME: SQL injection
-	for k, v := range args {
-		var vstr string
-		if vn, ok := v.(string); ok {
-			vstr = fmt.Sprintf(`"%s"`, vn)
-		} else {
-			vstr = fmt.Sprintf("%d", v.(int))
-		}
-		query = strings.Replace(query, ":"+k, vstr, -1)
-		glog.Infoln("replace:", k, vstr, "out: ", query)
-	}
+
 	_, err := db.dbMap.Select(&out, query, args)
 	glog.FatalIf(err)
 	return out
