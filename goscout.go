@@ -1,20 +1,19 @@
 package main
 
 import (
+	"flag"
+
 	"./app"
 )
 
+// DefaultPort is the default port for the server
+const DefaultPort = 3000
+
+var port = flag.Int("port", DefaultPort, "port to run server")
+
 func main() {
-	s := app.NewServer()
+	flag.Parse()
 
+	s := app.NewServer(*port)
 	s.Run()
-	/*
-		r := mux.NewRouter()
-		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "dummy webpage\n")
-		})
-
-		fmt.Println("running on :3000")
-		http.ListenAndServe(":3000", r)
-	*/
 }
