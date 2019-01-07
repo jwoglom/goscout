@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -15,6 +16,8 @@ type EndpointFunc func(*http.Request) interface{}
 type CSVEndpointFunc func(*http.Request) [][]string
 
 func (s *Server) addRoutes() {
+	s.router.HandleFunc("/", indexPage)
+
 	v1 := s.Package.EndpointsV1
 	s.router.HandleFunc("/api/v1/status", jsonWrapper(v1.GenStatusEndpoint))
 	s.router.HandleFunc("/api/v1/status.json", jsonWrapper(v1.GenStatusEndpoint))
@@ -32,16 +35,33 @@ func (s *Server) addRoutes() {
 
 func jsonWrapper(endpoint EndpointFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/json")
 		json.NewEncoder(w).Encode(endpoint(r))
 	}
 }
 
 func csvWrapper(endpoint CSVEndpointFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/csv")
 		cw := csv.NewWriter(w)
 		defer cw.Flush()
 		for _, row := range endpoint(r) {
 			cw.Write(row)
 		}
 	}
+}
+
+func indexPage(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `
+<html>
+<body>
+<ul>
+	<li><a href="/api/v1/status">api/v1/status.json</a></li>
+	<li><a href="/api/v1/entries">api/v1/entries.csv</a></li>
+	<li><a href="/api/v1/entries.json">api/v1/entries.json</a></li>
+	<li><a href="/api/v1/treatments.json">api/v1/treatments.json</a></li>
+	<li><a href="/api/v1/devicestatus.json">api/v1/devicestatus.json</a></li>
+</ul>
+</body>
+</html>`)
 }

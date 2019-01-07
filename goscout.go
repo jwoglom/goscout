@@ -27,12 +27,6 @@ func main() {
 	}
 
 	if *testget {
-		glog.Infoln("getting treatments")
-		glog.Info(s.Db.GetTreatments(3))
-		glog.Infoln("getting treatment #1")
-		glog.Info(s.Db.GetTreatmentWithID(1))
-		glog.Infoln("getting treatment #9999")
-		glog.Info(s.Db.GetTreatmentWithID(9999))
 	}
 
 	s.Run()

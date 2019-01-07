@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"../db"
+	"github.com/ttacon/glog"
 )
 
 // Treatments is the treatments API struct definition
@@ -26,8 +27,15 @@ type Treatment struct {
 // GenTreatmentsEndpoint returns all treatments in the database
 func (v1 *EndpointsV1) GenTreatmentsEndpoint(r *http.Request) interface{} {
 	var out Treatments
-	limit := 10
-	for _, tr := range v1.Db.GetTreatments(limit) {
+
+	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query())
+	/*
+		var findArgs db.FindArguments
+		findArgs = append(findArgs, db.NewFindArgument("carbs", "$gte", "10"))
+		count := 20
+	*/
+	for _, tr := range v1.Db.GetTreatmentsWithFind(findArgs, count) {
+		glog.Infoln("tr:", tr)
 		out = append(out, DbTreatmentToTreatment(tr))
 	}
 	return out

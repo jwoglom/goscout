@@ -1,6 +1,7 @@
 package db
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/ttacon/glog"
@@ -32,8 +33,8 @@ func (db *Db) addTables() {
 func (db *Db) AddFakeTreatment() {
 	glog.FatalIf(db.dbMap.Insert(&Treatment{
 		EnteredBy: "manual",
-		Carbs:     6,
-		Insulin:   1,
+		Carbs:     float32(rand.Intn(50)),
+		Insulin:   float32(rand.Intn(20)),
 		Notes:     "test treatment",
 		Time:      time.Now(),
 	}))

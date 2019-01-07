@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"log"
+	"os"
 
 	"github.com/go-gorp/gorp"
 	_ "github.com/mattn/go-sqlite3"
@@ -34,6 +36,7 @@ func newDbMap() *gorp.DbMap {
 		Db:      db,
 		Dialect: gorp.SqliteDialect{},
 	}
+	dbmap.TraceOn("[sql]", log.New(os.Stderr, "", log.LstdFlags))
 
 	return dbmap
 
