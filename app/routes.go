@@ -24,7 +24,7 @@ func (s *Server) addRoutes() {
 
 	s.router.HandleFunc("/api/v1/entries", csvWrapper(v1.GenEntriesCSVEndpoint))
 	s.router.HandleFunc("/api/v1/entries.csv", csvWrapper(v1.GenEntriesCSVEndpoint))
-	s.router.HandleFunc("/api/v1/entries.json", jsonWrapper(v1.GenStatusEndpoint))
+	s.router.HandleFunc("/api/v1/entries.json", jsonWrapper(v1.GenEntriesEndpoint))
 
 	s.router.HandleFunc("/api/v1/treatments", jsonWrapper(v1.GenTreatmentsEndpoint))
 	s.router.HandleFunc("/api/v1/treatments.json", jsonWrapper(v1.GenTreatmentsEndpoint))
@@ -42,7 +42,7 @@ func jsonWrapper(endpoint EndpointFunc) func(w http.ResponseWriter, r *http.Requ
 
 func csvWrapper(endpoint CSVEndpointFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Type", "text/plain")
 		cw := csv.NewWriter(w)
 		defer cw.Flush()
 		for _, row := range endpoint(r) {
