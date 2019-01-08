@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"../db"
-	"github.com/ttacon/glog"
+	"github.com/gorilla/mux"
 )
 
 // Entries is the entries API struct definition
@@ -50,8 +50,7 @@ func (v1 *EndpointsV1) GenEntriesEndpointDummy(r *http.Request) interface{} {
 func (v1 *EndpointsV1) GenEntriesEndpoint(r *http.Request) interface{} {
 	var out Entries
 
-	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query())
-	glog.Infoln("findArgs:", findArgs)
+	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query(), mux.Vars(r))
 	for _, tr := range v1.Db.GetEntriesWithFind(findArgs, count) {
 		out = append(out, DbEntryToEntry(tr))
 	}

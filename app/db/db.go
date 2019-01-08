@@ -21,7 +21,6 @@ func NewDb() *Db {
 		dbMap: newDbMap(),
 	}
 
-	glog.Infoln("adding tables")
 	db.addTables()
 	db.dbMap.CreateTablesIfNotExists()
 

@@ -26,6 +26,10 @@ func (s *Server) addRoutes() {
 	s.router.HandleFunc("/api/v1/entries.csv", csvWrapper(v1.GenEntriesCSVEndpoint))
 	s.router.HandleFunc("/api/v1/entries.json", jsonWrapper(v1.GenEntriesEndpoint))
 
+	s.router.HandleFunc("/api/v1/entries/{type}.csv", csvWrapper(v1.GenEntriesCSVEndpoint))
+	s.router.HandleFunc("/api/v1/entries/{type}.json", jsonWrapper(v1.GenEntriesEndpoint))
+	s.router.HandleFunc("/api/v1/entries/{type}", csvWrapper(v1.GenEntriesCSVEndpoint))
+
 	s.router.HandleFunc("/api/v1/treatments", jsonWrapper(v1.GenTreatmentsEndpoint))
 	s.router.HandleFunc("/api/v1/treatments.json", jsonWrapper(v1.GenTreatmentsEndpoint))
 

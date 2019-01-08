@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"../db"
+	"github.com/gorilla/mux"
 )
 
 // Treatments is the treatments API struct definition
@@ -27,7 +28,7 @@ type Treatment struct {
 func (v1 *EndpointsV1) GenTreatmentsEndpoint(r *http.Request) interface{} {
 	var out Treatments
 
-	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query())
+	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query(), mux.Vars(r))
 	for _, tr := range v1.Db.GetTreatmentsWithFind(findArgs, count) {
 		out = append(out, DbTreatmentToTreatment(tr))
 	}

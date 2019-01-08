@@ -45,7 +45,6 @@ func (db *Db) GetTreatments(limit int) []Treatment {
 func (db *Db) GetTreatmentsWithFind(finds FindArguments, limit int) []Treatment {
 	var out []Treatment
 	query, args := finds.BuildQueryArgs(`SELECT `+treatmentFields+` FROM treatments`, limit, treatmentFieldMap)
-	glog.Infoln("getTreatmentsWithFind: ", query, args)
 
 	_, err := db.dbMap.Select(&out, query, args)
 	glog.FatalIf(err)

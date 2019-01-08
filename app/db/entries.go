@@ -49,7 +49,6 @@ func (db *Db) GetEntries(limit int) []Entry {
 func (db *Db) GetEntriesWithFind(finds FindArguments, limit int) []Entry {
 	var out []Entry
 	query, args := finds.BuildQueryArgs(`SELECT `+entriesFields+` FROM entries`, limit, entriesFieldMap)
-	glog.Infoln("getEntriesWithFind: ", query, args)
 
 	_, err := db.dbMap.Select(&out, query, args)
 	glog.FatalIf(err)

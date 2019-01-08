@@ -35,7 +35,6 @@ func (fas FindArguments) BuildQueryArgs(inputQuery string, limit int, allowedCol
 	}
 	query.WriteString(` ORDER BY time DESC LIMIT :limit`)
 
-	glog.Infoln("BuildQueryArgs:", query.String(), args)
 	return query.String(), args
 }
 
@@ -59,10 +58,14 @@ func NewFindArgument(name, op, val string) FindArgument {
 
 // FindArgumentsFromQuery builds a []FindArgument and returns the count
 // from a request.URL.Query() object
-func FindArgumentsFromQuery(query url.Values) ([]FindArgument, int) {
+func FindArgumentsFromQuery(query url.Values, vars map[string]string) ([]FindArgument, int) {
 	count := 10
-
 	var findArgs []FindArgument
+
+	if typ, ok := vars["type"]; ok {
+		findArgs = append(findArgs, NewFindArgument("type", "$eq", typ))
+	}
+
 	for k, vals := range query {
 		v := vals[0]
 		if k == "count" {
