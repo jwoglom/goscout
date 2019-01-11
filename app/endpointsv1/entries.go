@@ -2,8 +2,10 @@ package endpointsv1
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"../db"
@@ -71,6 +73,18 @@ func (v1 *EndpointsV1) UploadEntriesEndpoint(r *http.Request) interface{} {
 		buf.ReadFrom(r.Body)
 
 		glog.Infoln("uploadEntries body", buf.String())
+
+		var entries *Entries
+		json.Unmarshal(buf.Bytes(), &entries)
+
+		glog.Infoln("Data got:", *entries)
+		for _, entry := range *entries {
+			glog.Infoln("UpsertEntry:", entry)
+			dbEntry := EntryToDbEntry(entry)
+			glog.Infoln("dbEntry:", dbEntry)
+			glog.ErrorIf(v1.Db.UpsertEntry(dbEntry))
+		}
+
 	}
 	return nil
 }
@@ -94,11 +108,32 @@ func DbEntryToEntry(t db.Entry) Entry {
 	}
 }
 
+var dateStringLayout = "2006-01-02T15:04:05-0700"
+
+// EntryToDbEntry converts a local to database object
+func EntryToDbEntry(t Entry) db.Entry {
+	id, _ := strconv.ParseInt(t.ID, 10, 64)
+	time, _ := time.Parse(dateStringLayout, t.DateString)
+	return db.Entry{
+		ID:         id,
+		Device:     t.Device,
+		Time:       time,
+		Sgv:        t.Sgv,
+		Delta:      t.Delta,
+		Direction:  t.Direction,
+		Type:       t.Type,
+		Filtered:   t.Filtered,
+		Unfiltered: t.Unfiltered,
+		Rssi:       t.Rssi,
+		Noise:      t.Noise,
+	}
+}
+
 // GenEntriesCSVEndpoint converts the output of GenEntriesEndpoint to CSV
 func (v1 *EndpointsV1) GenEntriesCSVEndpoint(r *http.Request) [][]string {
 	entries := v1.GenEntriesEndpoint(r)
 	if entries == nil {
-		return [][]string{}
+		return [][]string{[]string{""}}
 	}
 	var out [][]string
 	for _, e := range entries.(Entries) {

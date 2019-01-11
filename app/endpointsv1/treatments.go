@@ -28,7 +28,7 @@ type Treatment struct {
 
 // GenTreatmentsEndpoint returns all treatments in the database
 func (v1 *EndpointsV1) GenTreatmentsEndpoint(r *http.Request) interface{} {
-	var out Treatments
+	out := Treatments{}
 
 	if r.Method == "POST" {
 		return v1.UploadTreatmentsEndpoint(r)

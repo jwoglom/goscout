@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/ttacon/glog"
 )
 
@@ -64,4 +66,38 @@ func (db *Db) GetEntryWithID(id int) *Entry {
 		})
 	glog.FatalIf(err)
 	return out
+}
+
+// GetEntryWithTimeAndType returns a single entry with the given time and type, if exists
+// Used for upsert operations
+func (db *Db) GetEntryWithTimeAndType(time time.Time, typ string) *Entry {
+	var out []Entry
+	_, err := db.dbMap.Select(&out, `SELECT `+entriesFields+` FROM entries WHERE time = :time AND type = :type LIMIT 1`,
+		map[string]interface{}{
+			"time": time,
+			"type": typ,
+		})
+	glog.FatalIf(err)
+	if len(out) > 0 {
+		return &out[0]
+	}
+	return nil
+}
+
+// UpsertEntry either inserts the entry or, if an entry already exists with the same
+// Time and Type, replaces it entirely with the given entry
+func (db *Db) UpsertEntry(entry Entry) error {
+	exists := db.GetEntryWithTimeAndType(entry.Time, entry.Type)
+	glog.Infoln("upsert exists: ", exists)
+	if exists == nil {
+		return db.insertEntry(&entry)
+	} else {
+		entry.ID = exists.ID
+		_, err := db.dbMap.Update(&entry)
+		return err
+	}
+}
+
+func (db *Db) insertEntry(entry *Entry) error {
+	return db.dbMap.Insert(entry)
 }
