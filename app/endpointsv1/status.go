@@ -3,7 +3,11 @@ package endpointsv1
 import (
 	"fmt"
 	"net/http"
+	"os/exec"
+	"strings"
 	"time"
+
+	"github.com/ttacon/glog"
 )
 
 // Status contains information about this Goscout instance
@@ -74,16 +78,28 @@ func (v1 *EndpointsV1) GenStatusEndpoint(r *http.Request) interface{} {
 	return Status{
 		Status:            "ok",
 		Name:              "Goscout",
-		Version:           "0",
+		Version:           gitVersion(),
 		ServerTime:        time.Now().String(),
 		ServerTimeEpoch:   time.Now().UnixNano() / int64(time.Millisecond),
 		APIEnabled:        true,
 		CareportalEnabled: true,
 		BoluscalcEnabled:  true,
 		Settings:          &StatusSettings{},
-		ExtendedSettings:  &StatusExtendedSettings{},
-		Authorized:        nil,
+		ExtendedSettings: &StatusExtendedSettings{
+			DeviceStatus: struct {
+				Advanced bool `json:"advanced"`
+			}{
+				Advanced: true,
+			},
+		},
+		Authorized: nil,
 	}
+}
+
+func gitVersion() string {
+	out, err := exec.Command("/usr/bin/git", []string{"rev-parse", "--short", "HEAD"}...).Output()
+	glog.FatalIf(err)
+	return strings.TrimSuffix(string(out), "\n")
 }
 
 // GenStatusHTMLEndpoint is a placeholder which returns the fixed status output

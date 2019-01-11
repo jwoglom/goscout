@@ -41,6 +41,15 @@ func (s *Server) addRoutes() {
 
 	s.router.HandleFunc("/api/v1/devicestatus", jsonWrapper(v1.GenDeviceStatusEndpoint))
 	s.router.HandleFunc("/api/v1/devicestatus.json", jsonWrapper(v1.GenDeviceStatusEndpoint))
+
+	s.router.Use(loggingMiddleware)
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("[log] %s\n", r.RequestURI)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func jsonWrapper(endpoint EndpointFunc) func(w http.ResponseWriter, r *http.Request) {

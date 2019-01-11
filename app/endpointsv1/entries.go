@@ -1,12 +1,14 @@
 package endpointsv1
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"time"
 
 	"../db"
 	"github.com/gorilla/mux"
+	"github.com/ttacon/glog"
 )
 
 // Entries is the entries API struct definition
@@ -50,11 +52,27 @@ func (v1 *EndpointsV1) GenEntriesEndpointDummy(r *http.Request) interface{} {
 func (v1 *EndpointsV1) GenEntriesEndpoint(r *http.Request) interface{} {
 	var out Entries
 
+	if r.Method == "POST" {
+		return v1.UploadEntriesEndpoint(r)
+	}
+
 	findArgs, count := db.FindArgumentsFromQuery(r.URL.Query(), mux.Vars(r))
 	for _, tr := range v1.Db.GetEntriesWithFind(findArgs, count) {
 		out = append(out, DbEntryToEntry(tr))
 	}
 	return out
+}
+
+// UploadEntriesEndpoint uploads entries given as POST data
+func (v1 *EndpointsV1) UploadEntriesEndpoint(r *http.Request) interface{} {
+	glog.Infoln("upload form", r.Form)
+	if r.Body != nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r.Body)
+
+		glog.Infoln("uploadEntries body", buf.String())
+	}
+	return nil
 }
 
 // DbEntryToEntry converts a database to a local object
@@ -78,9 +96,12 @@ func DbEntryToEntry(t db.Entry) Entry {
 
 // GenEntriesCSVEndpoint converts the output of GenEntriesEndpoint to CSV
 func (v1 *EndpointsV1) GenEntriesCSVEndpoint(r *http.Request) [][]string {
-	entries := v1.GenEntriesEndpoint(r).(Entries)
+	entries := v1.GenEntriesEndpoint(r)
+	if entries == nil {
+		return [][]string{}
+	}
 	var out [][]string
-	for _, e := range entries {
+	for _, e := range entries.(Entries) {
 		var row []string
 		row = append(row, e.DateString)
 		row = append(row, fmt.Sprintf("%d", e.Date))
