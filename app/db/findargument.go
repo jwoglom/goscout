@@ -63,7 +63,11 @@ func FindArgumentsFromQuery(query url.Values, vars map[string]string) ([]FindArg
 	var findArgs []FindArgument
 
 	if typ, ok := vars["type"]; ok {
-		findArgs = append(findArgs, NewFindArgument("type", "$eq", typ))
+		if typ == "current" {
+			count = 1
+		} else {
+			findArgs = append(findArgs, NewFindArgument("type", "$eq", typ))
+		}
 	}
 
 	for k, vals := range query {

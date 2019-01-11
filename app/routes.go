@@ -19,7 +19,7 @@ func (s *Server) addRoutes() {
 	s.router.HandleFunc("/", indexPage)
 
 	v1 := s.Package.EndpointsV1
-	s.router.HandleFunc("/api/v1/status", jsonWrapper(v1.GenStatusEndpoint))
+	s.router.HandleFunc("/api/v1/status", v1.GenStatusHTMLEndpoint)
 	s.router.HandleFunc("/api/v1/status.json", jsonWrapper(v1.GenStatusEndpoint))
 
 	s.router.HandleFunc("/api/v1/entries", csvWrapper(v1.GenEntriesCSVEndpoint))
