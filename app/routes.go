@@ -22,6 +22,12 @@ func (s *Server) addRoutes() {
 	s.router.HandleFunc("/api/v1/status", v1.GenStatusHTMLEndpoint)
 	s.router.HandleFunc("/api/v1/status.json", jsonWrapper(v1.GenStatusEndpoint))
 
+	s.router.HandleFunc("/api/v1/profile", jsonWrapper(v1.GenProfileEndpoint))
+	s.router.HandleFunc("/api/v1/profile.json", jsonWrapper(v1.GenProfileEndpoint))
+
+	s.router.HandleFunc("/api/v1/profile/current", jsonWrapper(v1.GenCurrentProfileEndpoint))
+	s.router.HandleFunc("/api/v1/profile/current.json", jsonWrapper(v1.GenCurrentProfileEndpoint))
+
 	s.router.HandleFunc("/api/v1/entries", csvWrapper(v1.GenEntriesCSVEndpoint))
 	s.router.HandleFunc("/api/v1/entries.csv", csvWrapper(v1.GenEntriesCSVEndpoint))
 	s.router.HandleFunc("/api/v1/entries.json", jsonWrapper(v1.GenEntriesEndpoint))
