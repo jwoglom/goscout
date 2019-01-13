@@ -2,6 +2,7 @@ package endpointsv1
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -70,7 +71,17 @@ func (v1 *EndpointsV1) UploadEntriesEndpoint(r *http.Request) interface{} {
 	glog.Infoln("upload form", r.Form)
 	if r.Body != nil {
 		buf := new(bytes.Buffer)
-		buf.ReadFrom(r.Body)
+
+		if r.Header.Get("Content-Encoding") == "gzip" {
+			glog.Infof("trying gzip\n")
+
+			gr, err := gzip.NewReader(r.Body)
+			glog.FatalIf(err)
+
+			buf.ReadFrom(gr)
+		} else {
+			buf.ReadFrom(r.Body)
+		}
 
 		glog.Infoln("uploadEntries body", buf.String())
 
