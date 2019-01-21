@@ -2,7 +2,6 @@ package endpointsv1
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -70,24 +69,18 @@ func (v1 *EndpointsV1) GenEntriesEndpoint(r *http.Request) interface{} {
 func (v1 *EndpointsV1) UploadEntriesEndpoint(r *http.Request) interface{} {
 	glog.Infoln("upload form", r.Form)
 	if r.Body != nil {
+		// no gzip processing needed
 		buf := new(bytes.Buffer)
-
-		if r.Header.Get("Content-Encoding") == "gzip" {
-			glog.Infof("trying gzip\n")
-
-			gr, err := gzip.NewReader(r.Body)
-			glog.FatalIf(err)
-
-			buf.ReadFrom(gr)
-		} else {
-			buf.ReadFrom(r.Body)
-		}
+		buf.ReadFrom(r.Body)
 
 		glog.Infoln("uploadEntries body", buf.String())
 
 		var entries *Entries
 		json.Unmarshal(buf.Bytes(), &entries)
-
+		if entries == nil {
+			glog.Infoln("No data from entries")
+			return nil
+		}
 		glog.Infoln("Data got:", *entries)
 		for _, entry := range *entries {
 			glog.Infoln("UpsertEntry:", entry)

@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -21,6 +23,7 @@ const DefaultPort = 2000
 var port = flag.Int("port", DefaultPort, "port to run server")
 var primaryURL = flag.String("primaryURL", "", "primary URL to proxy (its response will be returned to the client)")
 var secondaryURL = flag.String("secondaryURL", "", "secondary URL to proxy (its response will be silenced)")
+var logRequests = flag.Bool("logRequests", false, "log requests")
 
 func main() {
 	flag.Parse()
@@ -47,7 +50,11 @@ func main() {
 
 func proxy() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("request: %s\n", r.URL.Path)
+		if *logRequests {
+			logRequest(r)
+		} else {
+			fmt.Printf("request: %s\n", r.URL.Path)
+		}
 
 		fakeRa := &http.Request{}
 		copier.Copy(&fakeRa, &r)
@@ -70,6 +77,44 @@ func proxy() http.Handler {
 
 		reverseProxy(*primaryURL, w, fakeRb)
 	})
+}
+
+func logRequest(r *http.Request) {
+	fmt.Printf("request: %s\n", r.URL)
+	fmt.Printf("type: %s\n", r.Method)
+	for k, v := range r.Form {
+		fmt.Printf("form: %s = %s\n", k, v)
+	}
+	for k, v := range r.Header {
+		fmt.Printf("header: %s = %s\n", k, v)
+	}
+	fmt.Printf("\n")
+	if r.Body != nil {
+		buf := getBody(r)
+		fmt.Printf("body: %s\n", buf)
+	}
+	fmt.Printf("\n\n")
+}
+
+func getBody(r *http.Request) *bytes.Buffer {
+	buf := new(bytes.Buffer)
+
+	if r.Header.Get("Content-Encoding") == "gzip" {
+		glog.Infof("trying gzip\n")
+
+		gr, err := gzip.NewReader(r.Body)
+		if err == io.EOF {
+			return buf
+		} else {
+			glog.FatalIf(err)
+		}
+
+		buf.ReadFrom(gr)
+	} else {
+		buf.ReadFrom(r.Body)
+	}
+
+	return buf
 }
 
 func reverseProxy(target string, w http.ResponseWriter, r *http.Request) {
