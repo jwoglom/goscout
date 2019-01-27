@@ -6,8 +6,6 @@ import (
 	"os/exec"
 	"strings"
 	"time"
-
-	"github.com/ttacon/glog"
 )
 
 // Status contains information about this Goscout instance
@@ -98,7 +96,9 @@ func (v1 *EndpointsV1) GenStatusEndpoint(r *http.Request) interface{} {
 
 func gitVersion() string {
 	out, err := exec.Command("/usr/bin/git", []string{"rev-parse", "--short", "HEAD"}...).Output()
-	glog.FatalIf(err)
+	if err != nil {
+		return "unknown"
+	}
 	return strings.TrimSuffix(string(out), "\n")
 }
 
