@@ -86,7 +86,7 @@ func (db *Db) GetEntryWithTimeAndType(time time.Time, typ string) *Entry {
 
 // UpsertEntry either inserts the entry or, if an entry already exists with the same
 // Time and Type, replaces it entirely with the given entry
-func (db *Db) UpsertEntry(entry Entry) error {
+func (db *Db) UpsertEntry(entry Entry) (int64, error) {
 	exists := db.GetEntryWithTimeAndType(entry.Time, entry.Type)
 	glog.Infoln("upsert exists: ", exists)
 	if exists == nil {
@@ -94,10 +94,11 @@ func (db *Db) UpsertEntry(entry Entry) error {
 	} else {
 		entry.ID = exists.ID
 		_, err := db.dbMap.Update(&entry)
-		return err
+		return entry.ID, err
 	}
 }
 
-func (db *Db) insertEntry(entry *Entry) error {
-	return db.dbMap.Insert(entry)
+func (db *Db) insertEntry(entry *Entry) (int64, error) {
+	err := db.dbMap.Insert(entry)
+	return entry.ID, err
 }

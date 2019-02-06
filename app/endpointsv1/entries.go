@@ -13,6 +13,9 @@ import (
 	"github.com/ttacon/glog"
 )
 
+// NightscoutDateFormat defines the output date format
+const NightscoutDateFormat = "2006-01-02T15:04:05.000-0700"
+
 // Entries is the entries API struct definition
 type Entries []Entry
 
@@ -86,8 +89,11 @@ func (v1 *EndpointsV1) UploadEntriesEndpoint(r *http.Request) interface{} {
 			glog.Infoln("UpsertEntry:", entry)
 			dbEntry := EntryToDbEntry(entry)
 			glog.Infoln("dbEntry:", dbEntry)
-			glog.ErrorIf(v1.Db.UpsertEntry(dbEntry))
+			newID, err := v1.Db.UpsertEntry(dbEntry)
+			glog.FatalIf(err)
+			entry.ID = fmt.Sprintf("%d", newID)
 		}
+		return entries
 
 	}
 	return nil
@@ -99,7 +105,7 @@ func DbEntryToEntry(t db.Entry) Entry {
 		ID:         fmt.Sprintf("%d", t.ID),
 		Device:     t.Device,
 		Date:       t.Time.UnixNano() / int64(time.Millisecond),
-		DateString: t.Time.String(),
+		DateString: t.Time.Format(NightscoutDateFormat),
 		Sgv:        t.Sgv,
 		Delta:      t.Delta,
 		Direction:  t.Direction,
@@ -108,7 +114,7 @@ func DbEntryToEntry(t db.Entry) Entry {
 		Unfiltered: t.Unfiltered,
 		Rssi:       t.Rssi,
 		Noise:      t.Noise,
-		SysTime:    t.Time.String(),
+		SysTime:    t.Time.Format(NightscoutDateFormat),
 	}
 }
 
