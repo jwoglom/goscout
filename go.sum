@@ -1,0 +1,14 @@
+github.com/go-gorp/gorp v2.0.0+incompatible h1:dIQPsBtl6/H1MjVseWuWPXa7ET4p6Dve4j3Hg+UjqYw=
+github.com/go-gorp/gorp v2.0.0+incompatible/go.mod h1:7IfkAQnO7jfT/9IQ3R9wL1dFhukN6aQxzKTHnkxzA/E=
+github.com/gorilla/mux v1.7.0 h1:tOSd0UKHQd6urX6ApfOn4XdBMY6Sh1MfxV3kmaazO+U=
+github.com/gorilla/mux v1.7.0/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
+github.com/imroc/req v0.2.3 h1:ElMCifcqg/1GonGloyyTUrj6D6IITL6EiNEKHUl4xZM=
+github.com/imroc/req v0.2.3/go.mod h1:J9FsaNHDTIVyW/b5r6/Df5qKEEEq2WzZKIgKSajd1AE=
+github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3 h1:sHsPfNMAG70QAvKbddQ0uScZCHQoZsT5NykGRCeeeIs=
+github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3/go.mod h1:yL958EeXv8Ylng6IfnvG4oflryUi3vgA3xPs9hmII1s=
+github.com/mattn/go-sqlite3 v1.10.0 h1:jbhqpg7tQe4SupckyijYiy0mJJ/pRyHvXf7JdWK860o=
+github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
+github.com/ttacon/glog v0.0.0-20140922232956-8a43e3b34040 h1:k982yrkYxWipWG07lasSw62lE4OCkPkicKiKC61KfNA=
+github.com/ttacon/glog v0.0.0-20140922232956-8a43e3b34040/go.mod h1:Lq82yB2rfRIr5LeHIkKh5GgKOL0YGfipHC6fAloaZLE=
+github.com/yext/errgo v0.0.0-20140930194153-7f28413f927a h1:YfMynzGKifmKWITtTYg330iM6XNl9wjEkour1WdAYPA=
+github.com/yext/errgo v0.0.0-20140930194153-7f28413f927a/go.mod h1:QXGE+Z0Mml75uTWIEVybH/iK4p3KsA4jBUiVaEAodRU=
