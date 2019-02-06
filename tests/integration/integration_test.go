@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"../../app/endpointsv1"
 	"github.com/imroc/req"
+	"github.com/jwoglom/goscout/app/endpointsv1"
 	"github.com/ttacon/glog"
 )
 
@@ -120,6 +120,7 @@ func startGoscout() {
 }
 
 func assert(s string, b bool, t *testing.T) {
+	t.Helper()
 	if !b {
 		t.Errorf("Assertion failed: %s", s)
 	} else {
@@ -128,6 +129,7 @@ func assert(s string, b bool, t *testing.T) {
 }
 
 func reqOK(resp *req.Resp, err error, t *testing.T) {
+	t.Helper()
 	if err != nil {
 		t.Fatalf("Unexpected error: %s", err)
 	}
@@ -175,6 +177,42 @@ func getNightscoutToken() req.Header {
 	}
 }
 
+func helperUploadEntry(entry []req.Param, t *testing.T) (endpointsv1.Entries, endpointsv1.Entries) {
+	nsToken := getNightscoutToken()
+
+	nssc, err := req.Post(NSSC+"api/v1/entries.json", req.BodyJSON(&entry), nsToken)
+	reqOK(nssc, err, t)
+
+	gosc, err := req.Post(GOSC+"api/v1/entries.json", req.BodyJSON(&entry))
+	reqOK(gosc, err, t)
+
+	count := fmt.Sprintf("%d", len(entry))
+	nssc, err = req.Get(NSSC + "api/v1/entries.json?count=" + count)
+	reqOK(nssc, err, t)
+
+	gosc, err = req.Get(GOSC + "api/v1/entries.json?count=" + count)
+	reqOK(gosc, err, t)
+
+	var ns endpointsv1.Entries
+	nssc.ToJSON(&ns)
+
+	var gs endpointsv1.Entries
+	gosc.ToJSON(&gs)
+
+	return ns, gs
+}
+
+func helperAssertEntry(a, b endpointsv1.Entry, t *testing.T) {
+	t.Logf("helperAssertEntry: %+v %+v\n", a, b)
+	assert("entry device", a.Device == b.Device, t)
+	assert("entry date int", a.Date == b.Date, t)
+	assert("entry datestring", a.DateString == b.DateString, t)
+	assert("entry sgv", a.Sgv == b.Sgv, t)
+	assert("entry delta", a.Delta == b.Delta, t)
+	assert("entry direction", a.Direction == b.Direction, t)
+	assert("entry type", a.Type == b.Type, t)
+}
+
 func TestUploadEntry(t *testing.T) {
 	entry := []req.Param{{
 		"device":     "xDrip-DexcomG5 G5 Native",
@@ -191,25 +229,7 @@ func TestUploadEntry(t *testing.T) {
 		"sysTime":    "2019-02-04T23:09:20.137-0500",
 	}}
 
-	nsToken := getNightscoutToken()
-
-	nssc, err := req.Post(NSSC+"api/v1/entries.json", req.BodyJSON(&entry), nsToken)
-	reqOK(nssc, err, t)
-
-	gosc, err := req.Post(GOSC+"api/v1/entries.json", req.BodyJSON(&entry))
-	reqOK(gosc, err, t)
-
-	nssc, err = req.Get(NSSC + "api/v1/entries.json?count=1")
-	reqOK(nssc, err, t)
-
-	gosc, err = req.Get(GOSC + "api/v1/entries.json?count=1")
-	reqOK(gosc, err, t)
-
-	var ns endpointsv1.Entries
-	nssc.ToJSON(&ns)
-
-	var gs endpointsv1.Entries
-	gosc.ToJSON(&gs)
+	ns, gs := helperUploadEntry(entry, t)
 
 	assert("one entry in nightscout", len(ns) == 1, t)
 	assert("one entry in goscout", len(gs) == 1, t)
@@ -217,13 +237,6 @@ func TestUploadEntry(t *testing.T) {
 		t.Fatal("can't compare nonexistent entry")
 	}
 
-	assert("entry device", ns[0].Device == gs[0].Device, t)
-	assert("entry date int", ns[0].Date == gs[0].Date, t)
-	fmt.Printf("ns: %s gs: %s\n", ns[0].DateString, gs[0].DateString)
-	assert("entry datestring", ns[0].DateString == gs[0].DateString, t)
-	assert("entry sgv", ns[0].Sgv == gs[0].Sgv, t)
-	assert("entry delta", ns[0].Delta == gs[0].Delta, t)
-	assert("entry direction", ns[0].Direction == gs[0].Direction, t)
-	assert("entry type", ns[0].Type == gs[0].Type, t)
+	helperAssertEntry(ns[0], gs[0], t)
 
 }
