@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"./app"
+	"github.com/jwoglom/goscout/app"
 )
 
 // DefaultPort is the default port for the server

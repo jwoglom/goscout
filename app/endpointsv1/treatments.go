@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"../db"
 	"github.com/gorilla/mux"
+	"github.com/jwoglom/goscout/app/db"
 	"github.com/ttacon/glog"
 )
 

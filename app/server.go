@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"./db"
-	"./endpointsv1"
+	"github.com/jwoglom/goscout/app/db"
+	"github.com/jwoglom/goscout/app/endpointsv1"
 
 	"github.com/gorilla/mux"
 )

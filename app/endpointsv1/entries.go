@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"../db"
 	"github.com/gorilla/mux"
+	"github.com/jwoglom/goscout/app/db"
 	"github.com/ttacon/glog"
 )
 

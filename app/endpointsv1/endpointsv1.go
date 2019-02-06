@@ -1,6 +1,6 @@
 package endpointsv1
 
-import "../db"
+import "github.com/jwoglom/goscout/app/db"
 
 // EndpointsV1 allows the endpoints to access the database and
 // other parts of the application
