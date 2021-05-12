@@ -1,5 +1,7 @@
 module github.com/jwoglom/goscout
 
+go 1.15
+
 require (
 	github.com/go-gorp/gorp v2.0.0+incompatible
 	github.com/gorilla/mux v1.7.0
